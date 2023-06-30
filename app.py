@@ -1,4 +1,3 @@
-from turtle import up
 import streamlit as st
 import tensorflow as tf
 from tensorflow.keras.applications.resnet50 import decode_predictions
