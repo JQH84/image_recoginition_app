@@ -8,6 +8,18 @@ from bs4 import BeautifulSoup
 
 st.title("Image Recognition App")
 
+# create a guide on how to use all the features of the app make sure to include that if they chose to upload and use their phone to take a picture, they need to download the image and then upload it to the appusing the phone system as well and it will load automaticly and then they can click the classify button and it will classify the image and then they can view the results
+st.write(   """
+    ## How to use the app
+    1. Select an option to either upload an image or provide the URL of an image.
+    2. if you chose to upload an image, click the 'Browse files' button and select an image from your computer. 
+    3. alternatively, if you are on your mobile phone, you can take a picture and then click the 'Use camera' button to take a picture and then click the 'Use photo' button to use the picture you just took.
+    4. if you chose to provide the URL of an image, enter the URL of the image in the text box. But make sure that the URL ends with .jpg, .png, or .jpeg.
+    3. Click the 'Classify' button.
+    4. View the results.
+    """
+)
+
 # Load pre-trained model (you can also use your own model)
 
 model = tf.keras.applications.ResNet50(weights="imagenet")
@@ -66,19 +78,19 @@ if "image" in locals():
     st.write(f"This image most likely contains the following items:")
     st.dataframe(create_df_from_items(items))
 
-    search_results = []
-    # search the web and retetrieve some cool facts about the items
-    for item in list_of_items:
-        # search for information about "banana" on Google
-        query = item
-        url = f"https://www.google.com/search?q={query}"
-        response = requests.get(url)
-
-        # parse the HTML response using BeautifulSoup
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        # extract the search results
-        search_results = soup.find_all("div", class_="g")
-        st.write(f"{search_results}")
-        # print the first search result
-        search_results.append(search_results[0].text)
+    #search_results = []
+    ## search the web and retetrieve some cool facts about the items
+    #for item in list_of_items:
+    #    # search for information about "banana" on Google
+    #    query = item
+    #    url = f"https://www.google.com/search?q={query}"
+    #    response = requests.get(url)
+#
+    #    # parse the HTML response using BeautifulSoup
+    #    soup = BeautifulSoup(response.text, "html.parser")
+#
+    #    # extract the search results
+    #    search_results = soup.find_all("div", class_="g")
+    #    st.write(f"{search_results}")
+    #    # print the first search result
+    #    search_results.append(search_results[0].text)
