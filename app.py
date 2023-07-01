@@ -4,6 +4,7 @@ from tensorflow.keras.applications.resnet50 import decode_predictions
 from PIL import Image
 import pandas as pd
 import requests
+import wikipedia
 from bs4 import BeautifulSoup
 
 st.title("Image Recognition App")
@@ -15,14 +16,21 @@ st.write(   """
     2. if you chose to upload an image, click the 'Browse files' button and select an image from your computer. 
     3. alternatively, if you are on your mobile phone, you can take a picture and then click the 'Use camera' button to take a picture and then click the 'Use photo' button to use the picture you just took.
     4. if you chose to provide the URL of an image, enter the URL of the image in the text box. But make sure that the URL ends with .jpg, .png, or .jpeg.
-    3. Click the 'Classify' button.
-    4. View the results.
+    5. View the results.
     """
 )
+# lets a drop down menu to select the model and use the tensorflow hub to load the model
+seletced_model = st.selectbox("Select a model:",("ResNet50","MobileNetV3Large"))    
+
+# based on the model selected, load the model
+if seletced_model == "ResNet50":    
+    model = tf.keras.applications.ResNet50(weights="imagenet")      
+elif seletced_model == "MobileNetV3Large":
+    model = tf.keras.applications.MobileNetV3Large(weights="imagenet")   
 
 # Load pre-trained model (you can also use your own model)
 
-model = tf.keras.applications.ResNet50(weights="imagenet")
+#model = tf.keras.applications.ResNet50(weights="imagenet")
 
 # Ask user to choose between uploading an image or providing a URL
 option = st.radio(
@@ -34,7 +42,10 @@ if option == "Upload an image":
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
-        st.image(image, caption="Uploaded Image", use_column_width=True)
+        width, height = image.size
+        new_width = int(width * 0.5)
+        new_height = int(height * 0.5)
+        st.image(image.resize((new_width,new_height)), caption="Uploaded Image", use_column_width=True)
 else:
     # Ask user to provide the URL of the image
     url = st.text_input("Enter the URL of the image you want to classify")
@@ -78,6 +89,41 @@ if "image" in locals():
     st.write(f"This image most likely contains the following items:")
     st.dataframe(create_df_from_items(items))
 
+    # set wikipedia language to english
+    wikipedia.set_lang("en")
+    
+    def get_wikipedia_summary(item_name):
+        try:
+            # search for the item on Wikipedia
+            search_results = wikipedia.search(item_name)
+            if len(search_results) == 0:
+                return None
+            # get the summary of the first search result
+            summary = wikipedia.wikipedia.summary(search_results[0] , sentances=1)
+            
+            return summary
+        except:
+            return None
+
+    def get_item_facts(items):
+        facts = {}
+        for item in items:
+            # get a summary of the item from Wikipedia
+            summary = get_wikipedia_summary(item)
+            if summary is not None:
+                facts[item] = summary
+        return facts
+
+    facts = get_item_facts(list_of_items)
+    st.write('Here are some facts about the items:')
+    # format the facts nicely
+    for item in facts:
+        # display the item name in bold and larger font      
+        st.markdown(f"**{item.upper()}**")
+        # display the summary of the item from Wikipedia in blockquotes
+        st.markdown(f"> {facts[item]}")
+        st.write("")
+    
     #search_results = []
     ## search the web and retetrieve some cool facts about the items
     #for item in list_of_items:
